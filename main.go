@@ -29,7 +29,7 @@ func compute(n int64) float64 {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	n := mux.Vars(r)["n"]
-	fmt.Println("received work", n)
+	//fmt.Println("received work", n)
 	num, err := strconv.Atoi(n)
 	if err != nil {
 		w.Write([]byte(err.Error()))
@@ -48,7 +48,7 @@ func main() {
 		Methods(http.MethodGet).
 		Path("/work/{n}").
 		HandlerFunc(handler)
-	if err := http.ListenAndServe("localhost:8081", router); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:8081", router); err != nil {
 		panic(err)
 	}
 }
