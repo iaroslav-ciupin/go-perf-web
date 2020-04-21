@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -11,32 +10,42 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func compute(n int64) float64 {
-	arr := make([]float64, n)
+func compute(memSize, cpuSize int) float64 {
+	setVal := rand.Float64()
+	// memory work
+	arr := make([]float64, memSize)
 	for i := range arr {
-		arr[i] = rand.Float64()
+		arr[i] = setVal
 	}
+
+	// cpu work
 	sum := 0.0
-	sinSum := 0.0
-	for _, a := range arr {
-		sum += a
-		sinSum += math.Sin(2.0 * math.Pi * a)
+	for i := 0; i < cpuSize; i++ {
+		sum += arr[i]
 	}
-	//fmt.Println("Sum is", sum)
-	//fmt.Println("Sin sum is", sinSum)
-	return sum / sinSum
+	return sum
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	n := mux.Vars(r)["n"]
-	//fmt.Println("received work", n)
-	num, err := strconv.Atoi(n)
+	vars := mux.Vars(r)
+	mem := vars["mem"]
+	cpu := vars["cpu"]
+
+	memSize, err := strconv.Atoi(mem)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	result := compute(int64(num))
+
+	cpuSize, err := strconv.Atoi(cpu)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	result := compute(memSize, cpuSize)
 	w.Write([]byte(fmt.Sprintf("%f", result)))
 }
 
@@ -46,7 +55,7 @@ func main() {
 	router := mux.NewRouter()
 	router.
 		Methods(http.MethodGet).
-		Path("/work/{n}").
+		Path("/work/{mem}/{cpu}").
 		HandlerFunc(handler)
 	if err := http.ListenAndServe("0.0.0.0:8081", router); err != nil {
 		panic(err)
