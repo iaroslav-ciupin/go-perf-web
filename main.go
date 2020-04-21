@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -11,17 +12,16 @@ import (
 )
 
 func compute(memSize, cpuSize int) float64 {
-	setVal := rand.Float64()
 	// memory work
 	arr := make([]float64, memSize)
 	for i := range arr {
-		arr[i] = setVal
+		arr[i] = rand.Float64()
 	}
 
 	// cpu work
 	sum := 0.0
 	for i := 0; i < cpuSize; i++ {
-		sum += arr[i]
+		sum += math.Sin(2.0 * math.Pi * arr[i])
 	}
 	return sum
 }
